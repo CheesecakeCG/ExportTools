@@ -1,18 +1,16 @@
 import bpy
 
 
-class HWExportTools(bpy.types.Panel):
-    """Main ExportTools Panel"""
-    bl_label = "ExportTools"
-    bl_idname = "OBJECT_PT_hwexporttools"
+class HWShapekeysPanel(bpy.types.Panel):
+    """Shape Keys Tools Panel"""
+    bl_label = "Shape Key Handling"
+    bl_parent_id = "OBJECT_PT_hwexporttools"
+    bl_idname = "OBJECT_PT_hwshapekeysPanel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "Tool"
 
     def draw(self, context):
         layout = self.layout
-
-        obj = context.object
 
         row = layout.row()
         row.operator("object.copy_attributes_to_shape_keys")

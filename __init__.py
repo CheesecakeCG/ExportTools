@@ -28,6 +28,8 @@ auto_load.init()
 
 def register():
     auto_load.register()
+    Bake.register()
 
 def unregister():
     auto_load.unregister()
+    Bake.unregister()
