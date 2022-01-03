@@ -2,7 +2,7 @@ from bpy import data as D
 from math import *
 from mathutils import *
 from bpy import context as C
-from .bake_nodes import HWBakeOutputNode
+from .bake_nodes import HWBakeOutputNode, HWBakeNormalsOutputNode
 import random
 import bpy
 
@@ -13,46 +13,66 @@ class HWBakeNodesOperator(bpy.types.Operator):
 
     def execute(self, context):
         for obj in context.selected_objects:
-            texture_image_name = 'HWBakedTexture'
-            # You can choose your texture size (This will be the de bake image)
-            image_name = obj.name + '_BakedTexture'
-
-            #Due to the presence of any multiple materials, it seems necessary to iterate on all the materials, and assign them a node + the image to bake.
             for mat in obj.data.materials:
                 for n in mat.node_tree.nodes:
-                    if n.bl_idname == HWBakeOutputNode.bl_idname:
-                        if len(n.inputs['Color'].links) != 1:
-                            continue
-                        hitlist = []
-
-                        img = n.image
-
-                        mat.use_nodes = True  # Here it is assumed that the materials have been created with nodes, otherwise it would not be possible to assign a node for the Bake, so this step is a bit useless
-                        nodes = mat.node_tree.nodes
-                        texture_node = new_emphemeral_node('ShaderNodeTexImage', nodes, hitlist)
-
-                        texture_node.name = texture_image_name
-                        texture_node.select = True
-                        nodes.active = texture_node
-                        texture_node.image = img  # Assign the image to the node
-
-                        emit_node = new_emphemeral_node('ShaderNodeEmission', nodes, hitlist)
-                        emit_output_socket = emit_node.outputs['Emission']
-                        input_socket = n.inputs['Color'].links[0].from_socket
-                        old_ouput = get_active_output(nodes)
-                        output = new_emphemeral_node('ShaderNodeOutputMaterial', nodes, hitlist)
-                        output_socket = output.inputs['Surface']
-                        set_as_active_output(output)
-                        # old_output_source = output.inputs['Surface'].links[0].from_socket
-
-                        mat.node_tree.links.new(input_socket, emit_node.inputs['Color'])
-                        mat.node_tree.links.new(emit_output_socket, output_socket)
-
-                        bpy.ops.object.bake(type='EMIT')
-
-                        clean_up_nodes(nodes, hitlist)
+                    bake_node(n, mat)
+                    bake_normal_node(n, mat)
 
         return {'FINISHED'}
+
+
+def bake_node(n, mat):
+    if n.bl_idname != HWBakeOutputNode.bl_idname:
+        return
+    if len(n.inputs['Color'].links) != 1:
+        return
+    hitlist = []
+
+    img = n.image
+
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    texture_node = new_emphemeral_node('ShaderNodeTexImage', nodes, hitlist)
+
+    texture_node.select = True
+    nodes.active = texture_node
+    texture_node.image = img  # Assign the image to the node
+
+    emit_node = new_emphemeral_node('ShaderNodeEmission', nodes, hitlist)
+    emit_output_socket = emit_node.outputs['Emission']
+    input_socket = n.inputs['Color'].links[0].from_socket
+    old_ouput = get_active_output(nodes)
+    output = new_emphemeral_node('ShaderNodeOutputMaterial', nodes, hitlist)
+    output_socket = output.inputs['Surface']
+    set_as_active_output(output)
+    # old_output_source = output.inputs['Surface'].links[0].from_socket
+
+    mat.node_tree.links.new(input_socket, emit_node.inputs['Color'])
+    mat.node_tree.links.new(emit_output_socket, output_socket)
+
+    bpy.ops.object.bake(type='EMIT')
+
+    clean_up_nodes(nodes, hitlist)
+
+
+def bake_normal_node(n, mat):
+    if n.bl_idname != HWBakeNormalsOutputNode.bl_idname:
+        return
+    hitlist = []
+
+    img = n.image
+
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    texture_node = new_emphemeral_node('ShaderNodeTexImage', nodes, hitlist)
+
+    texture_node.select = True
+    nodes.active = texture_node
+    texture_node.image = img  # Assign the image to the node
+
+    bpy.ops.object.bake(type='NORMAL')
+
+    clean_up_nodes(nodes, hitlist)
 
 
 def set_as_active_output(my_node):
