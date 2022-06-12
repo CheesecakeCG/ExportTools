@@ -13,6 +13,7 @@ class HWShapekeysPanel(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
-        row.operator("object.copy_attributes_to_shape_keys")
-        row = layout.row()
         row.operator("object.copy_shape_keys_to_attributes")
+        row.operator("object.copy_attributes_to_shape_keys")
+
+        layout.operator("object.lossy_modifier_strip")
