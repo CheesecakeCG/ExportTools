@@ -26,6 +26,8 @@ def bake_node(n, mat):
         return
     if len(n.inputs['Color'].links) != 1:
         return
+    if n.mute:
+        return
     hitlist = []
 
     img = n.image
