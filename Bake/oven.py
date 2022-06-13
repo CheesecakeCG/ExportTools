@@ -7,14 +7,20 @@ import random
 import bpy
 
 
-class HWBakeNodesOperator(bpy.types.Operator):
-    bl_idname = "object.hwbakenodes"
-    bl_label = "Bake All Nodes"
+class HWBakeAllNodesOperator(bpy.types.Operator):
+    bl_idname = "object.hwbake_all_nodes"
+    bl_label = "Bake All Nodes In Selected Objects"
 
     def execute(self, context):
+        already_baked = []
         for obj in context.selected_objects:
             for mat in obj.data.materials:
+                if already_baked.count(mat) != 0:
+                    print("Skipping " + mat.name + " because it's already been baked.")
+                    continue
+                already_baked.append(mat)
                 for n in mat.node_tree.nodes:
+                    print("Baking " + n.image.name + " for " + mat.name + "on " + obj.name)
                     bake_node(n, mat)
                     bake_normal_node(n, mat)
 
@@ -47,7 +53,6 @@ def bake_node(n, mat):
     output = new_emphemeral_node('ShaderNodeOutputMaterial', nodes, hitlist)
     output_socket = output.inputs['Surface']
     set_as_active_output(output)
-    # old_output_source = output.inputs['Surface'].links[0].from_socket
 
     mat.node_tree.links.new(input_socket, emit_node.inputs['Color'])
     mat.node_tree.links.new(emit_output_socket, output_socket)
@@ -59,6 +64,8 @@ def bake_node(n, mat):
 
 def bake_normal_node(n, mat):
     if n.bl_idname != HWBakeNormalsOutputNode.bl_idname:
+        return
+    if n.mute:
         return
     hitlist = []
 

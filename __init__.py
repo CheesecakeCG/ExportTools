@@ -22,6 +22,7 @@ bl_info = {
     "category" : "Generic"
 }
 
+from ExportTools import Bake
 from . import auto_load
 
 auto_load.init()

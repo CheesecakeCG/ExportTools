@@ -29,7 +29,7 @@ class HWBakeOutputNode(bpy.types.Node):
 
         # layout.prop(self, "to_vertex_colors")
 
-        layout.operator("object.hwbakenodes")
+        layout.operator("object.hwbake_all_nodes")
 
     # Optional: custom label
     # Explicit user label overrides this, but here we can define a label dynamically
@@ -60,7 +60,7 @@ class HWBakeNormalsOutputNode(bpy.types.Node):
 
         # layout.prop(self, "to_vertex_colors")
 
-        layout.operator("object.hwbakenodes")
+        layout.operator("object.hwbake_all_nodes")
 
     # Optional: custom label
     # Explicit user label overrides this, but here we can define a label dynamically
