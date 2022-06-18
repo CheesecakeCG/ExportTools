@@ -10,4 +10,4 @@ class HWBakePanel(bpy.types.Panel):
     bl_region_type = 'UI'
 
     def draw(self, context):
-        self.layout.operator("object.hwbakenodes")
+        self.layout.operator("object.hwbake_all_nodes")

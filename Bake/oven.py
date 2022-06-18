@@ -20,7 +20,6 @@ class HWBakeAllNodesOperator(bpy.types.Operator):
                     continue
                 already_baked.append(mat)
                 for n in mat.node_tree.nodes:
-                    print("Baking " + n.image.name + " for " + mat.name + "on " + obj.name)
                     bake_node(n, mat)
                     bake_normal_node(n, mat)
 
