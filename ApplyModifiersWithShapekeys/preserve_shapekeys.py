@@ -54,12 +54,16 @@ class MixdownMeshes(bpy.types.Operator):
 
 class PreserveShapekeys():
     def copy_all_shape_keys_to_attributes(obj):
+        # if not obj.has_key("shape_key"):
+        #     return
+        if not obj.type == "MESH": return 
         if obj.data.shape_keys is None:
             return
         for sk in obj.data.shape_keys.key_blocks:
             PreserveShapekeys.copy_shape_keys_to_attributes(obj, sk)
 
     def copy_shape_keys_to_attributes(obj, shape_key):
+        if not obj.type == "MESH": return 
         print(shape_key.name)
         # if not obj is bpy.types.Object:
         #     print("Object does not exist")
@@ -80,10 +84,12 @@ class PreserveShapekeys():
             i += 1
 
     def copy_all_attributes_to_shape_keys(obj):
+        if not obj.type == "MESH": return 
         for sk in obj.data.attributes:
             PreserveShapekeys.copy_attributes_to_shape_keys(obj, sk)
 
     def copy_attributes_to_shape_keys(obj, attribute):
+        if not obj.type == "MESH": return 
         if not attribute.name.startswith("PV_"):
             return
         if attribute.name == "PV_Basis":
@@ -109,6 +115,7 @@ class PreserveShapekeys():
 
     # TODO make this not crash blender
     def strip_modifiers(context, src_obj):
+        if not src_obj.type == "MESH": return 
         obj = src_obj.copy()
         obj.data = src_obj.data.copy()
         context.collection.objects.link(obj)
@@ -124,7 +131,7 @@ class PreserveShapekeys():
         print("Restoring backup...")
         PreserveShapekeys.copy_all_attributes_to_shape_keys(obj)
 
-        print("Returning Object!")
+        print("Returning Object!", obj.name)
         return obj
     
     
