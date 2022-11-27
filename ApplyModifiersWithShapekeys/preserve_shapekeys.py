@@ -54,8 +54,7 @@ class MixdownMeshes(bpy.types.Operator):
 
 class PreserveShapekeys():
     def copy_all_shape_keys_to_attributes(obj):
-        # if not obj.has_key("shape_key"):
-        #     return
+
         if not obj.type == "MESH": return 
         if obj.data.shape_keys is None:
             return
@@ -64,16 +63,13 @@ class PreserveShapekeys():
 
     def copy_shape_keys_to_attributes(obj, shape_key):
         if not obj.type == "MESH": return 
+        if obj.data.shape_keys is None: return
+
         print(shape_key.name)
-        # if not obj is bpy.types.Object:
-        #     print("Object does not exist")
+
+        # if shape_key.name == "Basis":
         #     return
-        # if not shape_key is bpy.types.ShapeKey:
-        #     print("Shapekey", shape_key.name, " does not exist")
-        #     return
-        if shape_key.name == "Basis":
-            return
-        basis = obj.data.shape_keys.key_blocks["Basis"]
+        basis = obj.data.shape_keys.key_blocks[0]
 
         attribute = obj.data.attributes.new(
             "PV_" + shape_key.name, 'FLOAT_VECTOR', 'POINT')
@@ -92,12 +88,12 @@ class PreserveShapekeys():
         if not obj.type == "MESH": return 
         if not attribute.name.startswith("PV_"):
             return
-        if attribute.name == "PV_Basis":
-            return
+        # if attribute.name == "PV_Basis":
+        #     return
 
         if obj.data.shape_keys is None:
-            obj.shape_key_add(name="Basis", from_mix=False)
-        basis = obj.data.shape_keys.key_blocks["Basis"]
+            obj.shape_key_add(name="HWTMP_Basis", from_mix=False)
+        basis = obj.data.shape_keys.key_blocks[0]
 
         print(attribute.name)
         # if not obj is bpy.types.Object:
@@ -112,6 +108,9 @@ class PreserveShapekeys():
             # print(i, v.vector)
             shape_key.data[i].co = v.vector + basis.data[i].co
             i += 1
+
+        if basis.name == "HWTMP_Basis":
+            obj.shape_key_remove(basis)
 
     # TODO make this not crash blender
     def strip_modifiers(context, src_obj):
