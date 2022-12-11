@@ -67,8 +67,6 @@ class PreserveShapekeys():
 
         print(shape_key.name)
 
-        # if shape_key.name == "Basis":
-        #     return
         basis = obj.data.shape_keys.key_blocks[0]
 
         attribute = obj.data.attributes.new(
@@ -88,24 +86,16 @@ class PreserveShapekeys():
         if not obj.type == "MESH": return 
         if not attribute.name.startswith("PV_"):
             return
-        # if attribute.name == "PV_Basis":
-        #     return
 
         if obj.data.shape_keys is None:
             obj.shape_key_add(name="HWTMP_Basis", from_mix=False)
         basis = obj.data.shape_keys.key_blocks[0]
 
         print(attribute.name)
-        # if not obj is bpy.types.Object:
-        #     print("Object does not exist")
-        #     return
-        # if not attribute is bpy.types.Attribute:
-        #     print("Shapekey", shape_key.name, " does not exist")
-        #     return
+        
         shape_key = obj.shape_key_add(name=attribute.name.removeprefix("PV_"), from_mix=False)
         i = 0
         for v in attribute.data:
-            # print(i, v.vector)
             shape_key.data[i].co = v.vector + basis.data[i].co
             i += 1
 
